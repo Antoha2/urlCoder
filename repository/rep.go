@@ -1,9 +1,13 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Repository interface {
-	Create(unit *RepUrl) error
+	LongUrl(unit *RepUrl) error
 }
 
 type repositoryImplDB struct {
@@ -18,8 +22,7 @@ func NewRepository(dbx *gorm.DB) *repositoryImplDB {
 }
 
 type RepUrl struct {
-	Id     int
-	UserId int
-	Text   string
-	IsDone bool
+	Id       int
+	Long_url string
+	CreateAt time.Time
 }

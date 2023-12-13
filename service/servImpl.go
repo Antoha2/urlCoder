@@ -2,20 +2,22 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/antoha2/urlCoder/repository"
 )
 
-func (sImpl *servImpl3) Create(unit *ServBuyUnit) error {
-	fmt.Println("serv ", unit)
+func (sImpl *servImpl3) LongUrl(url *ServUrl) error {
+	
 
-	repUnit := new(repository.RepBuyUnit)
-	repUnit.Id = unit.Id
-	repUnit.UserId = unit.Id
-	repUnit.Text = unit.Text
-	repUnit.IsDone = unit.IsDone
+	repUrl := new(repository.RepUrl)
+	repUrl.Id = url.Id
+	repUrl.Long_url = url.Long_url
+	repUrl.CreateAt = time.Now()
+	// // repUnit.Text = unit.Text
+	// // repUnit.IsDone = unit.IsDone
 
-	err := sImpl.rep.Create(repUnit)
+	err := sImpl.rep.LongUrl(repUrl)
 	if err != nil {
 		fmt.Println(err)
 		return err

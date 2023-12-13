@@ -4,13 +4,13 @@ import (
 	"github.com/antoha2/urlCoder/repository"
 )
 
-type UnitService interface {
-	Create(unit *ServUrl) error
+type UrlService interface {
+	LongUrl(url *ServUrl) error
 }
 
 type servImpl3 struct {
 	rep repository.Repository
-	UnitService
+	UrlService
 }
 
 func NewService(rep repository.Repository) *servImpl3 {
@@ -20,8 +20,6 @@ func NewService(rep repository.Repository) *servImpl3 {
 }
 
 type ServUrl struct {
-	Id     int    `json:"id"`
-	UserId int    `json:"user_id"`
-	Text   string `json:"text"`
-	IsDone bool   `json:"isDone"`
+	Id       int    `json:"id"`
+	Long_url string `json:"long_url"`
 }

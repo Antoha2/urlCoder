@@ -11,7 +11,7 @@ import (
 
 func (wImpl *webImpl) StartHTTP() error {
 
-	http.HandleFunc("/create", wImpl.handlerCreate)
+	http.HandleFunc("/create", wImpl.handlerLongUrl)
 
 	//r := mux.NewRouter() //I'm using Gorilla Mux, but it could be any other library, or even the stdlib
 
@@ -35,28 +35,28 @@ func (wImpl *webImpl) StartHTTP() error {
 	return nil
 }
 
-func (wImpl *webImpl) handlerCreate(w http.ResponseWriter, r *http.Request) {
+func (wImpl *webImpl) handlerLongUrl(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		return
 	}
-	unit := new(service.ServBuyUnit)
-	err := wImpl.Decoder(r, unit)
+	url := new(service.ServUrl)
+	err := wImpl.Decoder(r, url)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	fmt.Println("web ", unit)
+	//fmt.Println("web ", url)
 
-	err = wImpl.service.Create(unit)
+	err = wImpl.service.LongUrl(url)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	str := fmt.Sprintf("выполнено id-(%v) text-(%v) isDone-(%v)", unit.Id, unit.Text, unit.IsDone)
+	str := fmt.Sprintf("выполнено id-(%v) url-(%v) ", url.Id, url.Long_url)
 	json, err := json.Marshal(str)
 
 	if err != nil {
@@ -69,7 +69,7 @@ func (wImpl *webImpl) handlerCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 //декодеры JSON
-func (wImpl *webImpl) Decoder(r *http.Request, unit *service.ServBuyUnit) error { //unit *service.Service
+func (wImpl *webImpl) Decoder(r *http.Request, unit *service.ServUrl) error { //unit *service.Service
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
