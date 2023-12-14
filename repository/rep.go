@@ -7,7 +7,8 @@ import (
 )
 
 type Repository interface {
-	LongUrl(unit *RepUrl) error
+	RepAddLongUrl(url *RepLongUrl) error
+	RepGenTokens(q int) error
 }
 
 type repositoryImplDB struct {
@@ -21,8 +22,9 @@ func NewRepository(dbx *gorm.DB) *repositoryImplDB {
 	}
 }
 
-type RepUrl struct {
-	Id       int
+type RepLongUrl struct {
+	Id       int `gorm:"primaryKey"`
 	Long_url string
+	Token    string
 	CreateAt time.Time
 }

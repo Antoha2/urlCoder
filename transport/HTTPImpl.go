@@ -11,7 +11,8 @@ import (
 
 func (wImpl *webImpl) StartHTTP() error {
 
-	http.HandleFunc("/create", wImpl.handlerLongUrl)
+	http.HandleFunc("/add", wImpl.handlerAddLongUrl)
+	http.HandleFunc("/genTokens", wImpl.handlerGenTokens)
 
 	//r := mux.NewRouter() //I'm using Gorilla Mux, but it could be any other library, or even the stdlib
 
@@ -35,7 +36,7 @@ func (wImpl *webImpl) StartHTTP() error {
 	return nil
 }
 
-func (wImpl *webImpl) handlerLongUrl(w http.ResponseWriter, r *http.Request) {
+func (wImpl *webImpl) handlerAddLongUrl(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		return
 	}
@@ -47,16 +48,47 @@ func (wImpl *webImpl) handlerLongUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//fmt.Println("web ", url)
-
-	err = wImpl.service.LongUrl(url)
+	err = wImpl.service.AddLongUrl(url)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	str := fmt.Sprintf("выполнено id-(%v) url-(%v) ", url.Id, url.Long_url)
+	str := fmt.Sprintf("выполнено id-(%v) url-(%v) , token-(%v)", url.Id, url.Long_url, url.Token)
+	json, err := json.Marshal(str)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.Write(json)
+
+}
+
+func (wImpl *webImpl) handlerGenTokens(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		return
+	}
+
+	Q := new(service.Quantity)
+	err := wImpl.DecoderQ(r, Q)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	q := Q.Q
+	err = wImpl.service.ServGenTokens(q)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	str := fmt.Sprintf("создано %v токенов", q)
 	json, err := json.Marshal(str)
 
 	if err != nil {
@@ -69,14 +101,29 @@ func (wImpl *webImpl) handlerLongUrl(w http.ResponseWriter, r *http.Request) {
 }
 
 //декодеры JSON
-func (wImpl *webImpl) Decoder(r *http.Request, unit *service.ServUrl) error { //unit *service.Service
+func (wImpl *webImpl) Decoder(r *http.Request, url *service.ServUrl) error { //unit *service.Service
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(body, unit)
+	err = json.Unmarshal(body, url)
+	if err != nil {
+		fmt.Println("can't unmarshal !!!!!: ", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (wImpl *webImpl) DecoderQ(r *http.Request, q *service.Quantity) error { //unit *service.Service
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(body, q)
 	if err != nil {
 		fmt.Println("can't unmarshal !!!!!: ", err.Error())
 		return err

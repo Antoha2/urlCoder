@@ -5,7 +5,9 @@ import (
 )
 
 type UrlService interface {
-	LongUrl(url *ServUrl) error
+	AddLongUrl(url *ServUrl) error
+	ServGenTokens(q int) error
+	hashid(id int) string
 }
 
 type servImpl3 struct {
@@ -22,4 +24,9 @@ func NewService(rep repository.Repository) *servImpl3 {
 type ServUrl struct {
 	Id       int    `json:"id"`
 	Long_url string `json:"long_url"`
+	Token    string `token`
+}
+
+type Quantity struct {
+	Q int `json:"Quantity"`
 }

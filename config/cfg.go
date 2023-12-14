@@ -3,6 +3,8 @@ package config
 import "os"
 
 const HTTPAddr = ":8180"
+const HashSalt = "antoha"
+const HashMinLength = 3
 
 type Config struct {
 	HTTP HTTPConfig
