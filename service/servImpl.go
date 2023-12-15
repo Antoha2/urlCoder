@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	cfg "github.com/antoha2/urlCoder/config"
 	"github.com/antoha2/urlCoder/repository"
-	"github.com/speps/go-hashids"
 )
 
 func (sImpl *servImpl3) AddLongUrl(url *ServUrl) error {
@@ -27,19 +25,19 @@ func (sImpl *servImpl3) AddLongUrl(url *ServUrl) error {
 	return nil
 }
 
-func (sImpl *servImpl3) hashid(id int) string {
-	hd := hashids.NewData()
-	hd.Salt = cfg.HashSalt
-	hd.MinLength = cfg.HashMinLength
+// func (sImpl *servImpl3) hashid(id int) string {
+// 	hd := hashids.NewData()
+// 	hd.Salt = cfg.HashSalt
+// 	hd.MinLength = cfg.HashMinLength
 
-	h := hashids.NewWithData(hd)
-	token, _ := h.Encode([]int{id})
+// 	h := hashids.NewWithData(hd)
+// 	token, _ := h.Encode([]int{id})
 
-	// fmt.Println(e)
-	// d, _ := h.DecodeWithError(e)
-	// fmt.Println(d)
-	return token
-}
+// 	// fmt.Println(e)
+// 	// d, _ := h.DecodeWithError(e)
+// 	// fmt.Println(d)
+// 	return token
+// }
 
 func (sImpl *servImpl3) ServGenTokens(q int) error {
 	err := sImpl.rep.RepGenTokens(q)

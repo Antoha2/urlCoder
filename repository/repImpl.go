@@ -86,6 +86,12 @@ func (r *repositoryImplDB) RepGenTokens(q int) error {
 	id := 1
 	s1 := 97
 	for i1 := 0; i1 < 62; i1++ {
+		if i1 == 26 {
+			s1 = 65
+		}
+		if i1 == 52 {
+			s1 = 48
+		}
 		s2 := 97
 		for i2 := 0; i2 < 62; i2++ {
 			if i2 == 26 {
@@ -123,5 +129,5 @@ func (r *repositoryImplDB) RepGenTokens(q int) error {
 		s1++
 	}
 	log.Println("создано макимальное количество токенов - 238328")
-	return errors.New("достигнуто максимальное коичество токенов")
+	return errors.New("достигнуто максимальное количество токенов")
 }
