@@ -11,6 +11,7 @@ import (
 )
 
 func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
+
 	//проверка на наличие свободных токенов
 	var countTokens int64
 	if err := r.rep.Table("urllist").Model(url).Count(&countTokens).Error; err != nil {
@@ -18,7 +19,7 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 		return err
 	}
 	if countTokens == 0 {
-		return errors.New("в базе нет токенов")
+		return errors.New("в базе нет свободных токенов")
 	}
 	var countUrls int64
 	if err := r.rep.Table("urllist").Model(url).Where("long_url is null").Count(&countUrls).Error; err != nil {
@@ -26,7 +27,7 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 		return err
 	}
 	if countTokens != 0 && countUrls == 0 {
-		return errors.New("нет свободных токенов")
+		return errors.New("в базе нет свободных токенов")
 
 	}
 
@@ -36,9 +37,7 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 	r.rep.Table("urllist").Where(sqlConditionAUrl).Find(&readUrl).Scan(&readUrl)
 	if readUrl.Id != 0 {
 		url.Token = readUrl.Token
-		errStr := "такой url уже есть в базе"
-		log.Println(errStr)
-		return errors.New(errStr)
+		return errors.New("такой url уже есть в базе")
 	}
 
 	var c int
@@ -68,6 +67,7 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 	}
 
 	log.Printf("id - %v, получен токен - %v \n", url.Id, url.Token)
+
 	return nil
 }
 

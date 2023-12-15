@@ -13,7 +13,6 @@ func (sImpl *servImpl3) AddLongUrl(url *ServUrl) error {
 	repUrl.Id = url.Id
 	repUrl.Long_url = url.Long_url
 	repUrl.CreateAt = time.Now()
-	repUrl.Token = sImpl.hashid(url.Id)
 
 	err := sImpl.rep.RepAddLongUrl(repUrl)
 	if err != nil {
