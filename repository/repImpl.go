@@ -12,23 +12,16 @@ import (
 
 func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 
-	//проверка на наличие свободных токенов
+	token := new(RepToken)
+
+	//подсчет общего количества токенов в базе
 	var countTokens int64
-	if err := r.rep.Table("urllist").Model(url).Count(&countTokens).Error; err != nil {
+	if err := r.rep.Table("tokenlist").Model(url).Count(&countTokens).Error; err != nil {
 		log.Println(err)
 		return err
 	}
 	if countTokens == 0 {
 		return errors.New("в базе нет свободных токенов")
-	}
-	var countUrls int64
-	if err := r.rep.Table("urllist").Model(url).Where("long_url is null").Count(&countUrls).Error; err != nil {
-		log.Println(err)
-		return err
-	}
-	if countTokens != 0 && countUrls == 0 {
-		return errors.New("в базе нет свободных токенов")
-
 	}
 
 	//проверка на совпадения
@@ -36,56 +29,41 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 	readUrl := new(RepLongUrl)
 	r.rep.Table("urllist").Where(sqlConditionAUrl).Find(&readUrl).Scan(&readUrl)
 	if readUrl.Id != 0 {
-		url.Token = readUrl.Token
+		url.Token_id = readUrl.Token_id
 		return errors.New("такой url уже есть в базе")
 	}
 
-	var c int
-	var count_id int64
-	query := "select id from urlList order by id desc LIMIT 1"
-	r.rep.Table("urlList").Raw(query).Scan(&c)
+	//генерация случайного id токена
+	r1 := rand.New(rand.NewSource(time.Now().UnixNano()))
+	token.Id = r1.Intn(int(countTokens))
 
-	//генерация случайного id и проверка на повторение
-	for {
-		s1 := rand.NewSource(time.Now().UnixNano())
-		r1 := rand.New(s1)
-		url.Id = r1.Intn(c + 1)
-		//log.Println("rand_id - ", rand_id)
-		if err := r.rep.Table("urllist").Model(url).Where("id = ? AND long_url is null", url.Id).Count(&count_id).Error; err != nil {
-			log.Println(err)
-			return err
-		}
-		if count_id != 0 {
-			break
-		}
+	if err := r.rep.Table("tokenlist").Find(&token, "token_id = ?", token.Id).Scan(&token).Error; err != nil {
+		log.Println(err)
+		return err
 	}
 
-	query = "update urllist set long_url = $1, created_at = $2 where id = $3 RETURNING token"
-	result := r.rep.Table("urlList").Raw(query, url.Long_url, url.CreateAt, url.Id).Scan(&url.Token)
+	url.Token = token.Token
+	url.Token_id = token.Id
+
+	result := r.rep.Table("urllist").Select("id", "token_id", "long_url", "created_at", "expiry_at").Create(&url)
 	if errors.Is(result.Error, gorm.ErrInvalidValue) {
-		return errors.New("ошибка получения токена")
+		return errors.New("ошибка создания записи")
 	}
-
-	log.Printf("id - %v, получен токен - %v \n", url.Id, url.Token)
 
 	return nil
 }
 
 //генерация новых токенов
 func (r *repositoryImplDB) RepGenTokens(q int) error {
+	log.Println("начало генерации токенов")
 
-	var c int
-	query := "select id from urlList order by id desc LIMIT 1"
-	r.rep.Table("urlList").Raw(query).Scan(&c)
-	log.Printf("сейчас в таблице токенов - %d , необходимо еще добавить - %d \n", c, q)
-	if c >= 238328 {
-		return errors.New("достигнуто максимальное коичество токенов")
-	}
+	countTokens := 2 * 62 * 62 //количество токенов
 
-	var c1 int
-	id := 1
+	t := make([]RepToken, countTokens)
+
+	id := 0
 	s1 := 97
-	for i1 := 0; i1 < 62; i1++ {
+	for i1 := 0; i1 < 2; i1++ {
 		if i1 == 26 {
 			s1 = 65
 		}
@@ -108,26 +86,30 @@ func (r *repositoryImplDB) RepGenTokens(q int) error {
 				if i3 == 52 {
 					s3 = 48
 				}
-				if id > c && id <= (c+q) {
-					token := fmt.Sprintf("%s%s%s", string(s1), string(s2), string(s3))
-					query := "INSERT INTO urlList (token) VALUES ($1) RETURNING id"
-					result := r.rep.Table("urlList").Raw(query, token).Scan(&c1)
-					if errors.Is(result.Error, gorm.ErrInvalidValue) {
-						return errors.New("ошибка сознания задачи")
+
+				token := fmt.Sprintf("%s%s%s", string(s1), string(s2), string(s3))
+				if id <= countTokens {
+					for {
+						r1 := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(countTokens) + 1
+						if t[r1-1].Id == 0 {
+							t[r1-1].Token = token
+							t[r1-1].Id = r1
+							break
+						}
 					}
 				}
 				s3++
 				id++
 
-				if id > (c + q) {
-					log.Println("создано токенов -", c1, " из 238328 возможных")
-					return nil
-				}
 			}
 			s2++
 		}
 		s1++
 	}
-	log.Println("создано макимальное количество токенов - 238328")
-	return errors.New("достигнуто максимальное количество токенов")
+	if err := r.rep.Table("tokenlist").Create(t).Error; err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println("создание токенов завершено")
+	return nil
 }

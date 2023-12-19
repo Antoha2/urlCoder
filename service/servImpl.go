@@ -12,7 +12,7 @@ func (sImpl *servImpl3) AddLongUrl(url *ServUrl) error {
 	repUrl := new(repository.RepLongUrl)
 	repUrl.Id = url.Id
 	repUrl.Long_url = url.Long_url
-	repUrl.CreateAt = time.Now()
+	repUrl.Create_at = time.Now()
 
 	err := sImpl.rep.RepAddLongUrl(repUrl)
 	if err != nil {
@@ -20,7 +20,7 @@ func (sImpl *servImpl3) AddLongUrl(url *ServUrl) error {
 		return err
 	}
 	url.Id = repUrl.Id
-	url.Token = repUrl.Token
+	//url.Token_id = repUrl.Token_id
 	return nil
 }
 

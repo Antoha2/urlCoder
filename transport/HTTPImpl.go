@@ -13,6 +13,7 @@ func (wImpl *webImpl) StartHTTP() error {
 
 	http.HandleFunc("/add", wImpl.handlerAddLongUrl)
 	http.HandleFunc("/genTokens", wImpl.handlerGenTokens)
+	// http.HandleFunc("/", wImpl.handlerGenTokens)
 
 	//r := mux.NewRouter() //I'm using Gorilla Mux, but it could be any other library, or even the stdlib
 

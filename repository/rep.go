@@ -23,8 +23,16 @@ func NewRepository(dbx *gorm.DB) *repositoryImplDB {
 }
 
 type RepLongUrl struct {
-	Id       int `gorm:"primaryKey"`
-	Long_url string
-	Token    string
-	CreateAt time.Time
+	Id        int `gorm:"primaryKey, column:url_id"`
+	Long_url  string
+	Token_id  int
+	Token     string
+	Create_at time.Time
+	Expiry_at time.Time
+}
+
+type RepToken struct {
+	Id    int `gorm:"column:token_id"`
+	Token string
+	Used  bool `gorm:"default:false"`
 }
