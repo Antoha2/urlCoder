@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/antoha2/urlCoder/repository"
@@ -20,26 +21,13 @@ func (sImpl *servImpl3) AddLongUrl(url *ServUrl) error {
 		return err
 	}
 	url.Id = repUrl.Id
-	//url.Token_id = repUrl.Token_id
+	url.Token = repUrl.Token
+	log.Println(url)
 	return nil
 }
 
-// func (sImpl *servImpl3) hashid(id int) string {
-// 	hd := hashids.NewData()
-// 	hd.Salt = cfg.HashSalt
-// 	hd.MinLength = cfg.HashMinLength
-
-// 	h := hashids.NewWithData(hd)
-// 	token, _ := h.Encode([]int{id})
-
-// 	// fmt.Println(e)
-// 	// d, _ := h.DecodeWithError(e)
-// 	// fmt.Println(d)
-// 	return token
-// }
-
-func (sImpl *servImpl3) ServGenTokens(q int) error {
-	err := sImpl.rep.RepGenTokens(q)
+func (sImpl *servImpl3) ServGenTokens() error {
+	err := sImpl.rep.RepGenTokens()
 	if err != nil {
 		fmt.Println(err)
 		return err

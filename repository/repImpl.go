@@ -30,7 +30,15 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 	r.rep.Table("urllist").Where(sqlConditionAUrl).Find(&readUrl).Scan(&readUrl)
 	if readUrl.Id != 0 {
 		url.Token_id = readUrl.Token_id
-		return errors.New("такой url уже есть в базе")
+		token.Id = readUrl.Token_id
+		url.Id = readUrl.Id
+		if err := r.rep.Table("tokenlist").Find(&token, "token_id = ?", token.Id).Scan(&token).Error; err != nil {
+			log.Println(err)
+			return err
+		}
+		url.Token = token.Token
+		log.Println("такой url уже есть в базе")
+		return nil //errors.New("такой url уже есть в базе")
 	}
 
 	//генерация случайного id токена
@@ -54,9 +62,21 @@ func (r *repositoryImplDB) RepAddLongUrl(url *RepLongUrl) error {
 }
 
 //генерация новых токенов
-func (r *repositoryImplDB) RepGenTokens(q int) error {
-	log.Println("начало генерации токенов")
+func (r *repositoryImplDB) RepGenTokens() error {
 
+	var count int64
+	var tok RepToken
+	if err := r.rep.Table("tokenlist").Model(tok).Where("token_id > 0").Count(&count).Error; err != nil {
+		log.Println(err)
+		return err
+	}
+	if count > 0 {
+		err := fmt.Sprintf("в базе уже есть %v токенов", count)
+		log.Println(err)
+		return errors.New(err)
+	}
+
+	log.Println("начало генерации токенов")
 	countTokens := 2 * 62 * 62 //количество токенов
 
 	t := make([]RepToken, countTokens)
@@ -111,5 +131,6 @@ func (r *repositoryImplDB) RepGenTokens(q int) error {
 		return err
 	}
 	log.Println("создание токенов завершено")
+
 	return nil
 }

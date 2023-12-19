@@ -56,7 +56,7 @@ func (wImpl *webImpl) handlerAddLongUrl(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	str := fmt.Sprintf("выполнено id-(%v) url-(%v) , token-(%v)", url.Id, url.Long_url, url.Token)
+	str := fmt.Sprintf("id-(%v) url-(%v) , token-(%v)", url.Id, url.Long_url, url.Token)
 	json, err := json.Marshal(str)
 
 	if err != nil {
@@ -73,23 +73,23 @@ func (wImpl *webImpl) handlerGenTokens(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Q := new(service.Quantity)
-	err := wImpl.DecoderQ(r, Q)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	//Q := new(service.Quantity)
+	// err := wImpl.DecoderQ(r, Q)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte(err.Error()))
+	// 	return
+	// }
 
-	q := Q.Q
-	err = wImpl.service.ServGenTokens(q)
+	//q := Q.Q
+	err := wImpl.service.ServGenTokens()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	str := fmt.Sprintf("создано %v токенов", q)
+	str := fmt.Sprintf("генерация прошла успешно")
 	json, err := json.Marshal(str)
 
 	if err != nil {
@@ -117,17 +117,17 @@ func (wImpl *webImpl) Decoder(r *http.Request, url *service.ServUrl) error { //u
 	return nil
 }
 
-func (wImpl *webImpl) DecoderQ(r *http.Request, q *service.Quantity) error { //unit *service.Service
+// func (wImpl *webImpl) DecoderQ(r *http.Request) error { //unit *service.Service
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return err
-	}
+// 	body, err := ioutil.ReadAll(r.Body)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	err = json.Unmarshal(body, q)
-	if err != nil {
-		fmt.Println("can't unmarshal !!!!!: ", err.Error())
-		return err
-	}
-	return nil
-}
+// 	err = json.Unmarshal(body, q)
+// 	if err != nil {
+// 		fmt.Println("can't unmarshal !!!!!: ", err.Error())
+// 		return err
+// 	}
+// 	return nil
+// }

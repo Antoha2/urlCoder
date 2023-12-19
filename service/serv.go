@@ -6,8 +6,7 @@ import (
 
 type UrlService interface {
 	AddLongUrl(url *ServUrl) error
-	ServGenTokens(q int) error
-	hashid(id int) string
+	ServGenTokens() error
 }
 
 type servImpl3 struct {
@@ -25,8 +24,4 @@ type ServUrl struct {
 	Id       int    `json:"id"`
 	Long_url string `json:"long_url"`
 	Token    string `token`
-}
-
-type Quantity struct {
-	Q int `json:"Quantity"`
 }

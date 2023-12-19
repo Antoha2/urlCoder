@@ -8,7 +8,7 @@ import (
 
 type Repository interface {
 	RepAddLongUrl(url *RepLongUrl) error
-	RepGenTokens(q int) error
+	RepGenTokens() error
 }
 
 type repositoryImplDB struct {
