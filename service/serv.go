@@ -7,6 +7,7 @@ import (
 type UrlService interface {
 	AddLongUrl(url *ServUrl) error
 	ServGenTokens() error
+	ServRedirect(url *ServUrl) error
 }
 
 type servImpl3 struct {

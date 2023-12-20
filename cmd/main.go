@@ -81,23 +81,3 @@ func initDb(cfg *config.Config) (*gorm.DB, error) {
 	log.Printf("Подключение к базе данных на http://127.0.0.1:%d\n", cfg.DB.Port)
 	return gormDB, nil
 }
-
-// import (
-// 	"fmt"
-
-// 	"github.com/speps/go-hashids"
-// )
-
-// func main() {
-
-// 	// log.Println("a")
-// 	hd := hashids.NewData()
-// 	hd.Salt = "antoha"
-// 	hd.MinLength = 3
-// 	h := hashids.NewWithData(hd)
-// 	a := 5
-// 	e, _ := h.Encode([]int{a})
-// 	fmt.Println(e)
-// 	d, _ := h.DecodeWithError(e)
-// 	fmt.Println(d)
-// }

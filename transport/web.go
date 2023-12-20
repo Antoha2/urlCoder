@@ -13,9 +13,9 @@ type webImpl struct {
 	server  *http.Server
 }
 
-func NewHTTP(buyService urlService.UrlService) *webImpl {
+func NewHTTP(urlService urlService.UrlService) *webImpl {
 	return &webImpl{
-		service: buyService,
+		service: urlService,
 	}
 }
 

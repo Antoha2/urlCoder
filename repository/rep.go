@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	RepAddLongUrl(url *RepLongUrl) error
 	RepGenTokens() error
+	RepRedirect(url *RepLongUrl) error
 }
 
 type repositoryImplDB struct {

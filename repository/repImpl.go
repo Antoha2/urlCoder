@@ -134,3 +134,20 @@ func (r *repositoryImplDB) RepGenTokens() error {
 
 	return nil
 }
+
+//редирект
+func (r *repositoryImplDB) RepRedirect(url *RepLongUrl) error {
+
+	if err := r.rep.Table("urllist").
+		Select("*"). //"urllist.id, urllist.long_url"
+		Joins("inner join tokenlist on tokenlist.token_id = urllist.token_id and tokenlist.token = ?", url.Token).
+		Scan(&url).Error; err != nil {
+		log.Println(err)
+		return err
+	}
+	if url.Id == 0 {
+		return fmt.Errorf("такого токена (%v) нет в базе", url.Token)
+	}
+	//log.Println(url)
+	return nil
+}

@@ -13,9 +13,9 @@ services:
       - ./:/app/
     working_dir: /app
     expose:
-      - 8180
+      - 8080
     ports:
-      - '8180:8180'
+      - '8080:8080'
     command: >
      bash -c "go run ./cmd/main.go"
 

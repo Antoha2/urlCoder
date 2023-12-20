@@ -34,3 +34,17 @@ func (sImpl *servImpl3) ServGenTokens() error {
 	}
 	return nil
 }
+
+func (sImpl *servImpl3) ServRedirect(url *ServUrl) error {
+	repUrl := new(repository.RepLongUrl)
+	repUrl.Token = url.Token
+	err := sImpl.rep.RepRedirect(repUrl)
+	if err != nil {
+		//fmt.Println(err)
+		return err
+	}
+	url.Id = repUrl.Id
+	url.Long_url = repUrl.Long_url
+
+	return nil
+}
